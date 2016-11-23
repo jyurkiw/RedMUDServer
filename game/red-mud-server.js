@@ -19,6 +19,13 @@ function RedMUDServer(httpServer) {
     var _gamePhase = {};
     var _commandPhase = [];
 
+    /**
+     * Initialize the MUD.
+     * Load all class modules.
+     * Load all spell and effect modules.
+     * 
+     * @memberof red-mud-server
+     */
     function initMUD() {
         console.log('Loading classes.');
         console.log('Loading spells and effects.');
@@ -37,6 +44,18 @@ function RedMUDServer(httpServer) {
      * {
      *      username:   {string},
      *      code:       {string}
+     * }
+     * </pre></code>
+     * 
+     * When a user is successfully verified, a game phase object is added to the _gamePhase
+     * collection to handle their character data, command queue, and keep track of their socket.
+     * 
+     * The game phase object has the following structure:
+     * <code><pre>
+     * {
+     *      socket:         {object},
+     *      commandQueue:   {array},
+     *      character:      {object}
      * }
      * </pre></code>
      * 
@@ -75,6 +94,13 @@ function RedMUDServer(httpServer) {
         }, conf.turnDuration);
     }
 
+    /**
+     * Handle the collection phase in the game loop.
+     * Remove connected and verified connections and
+     * unregister them from the verified event.
+     * 
+     * @memberof red-mud-server
+     */
     function connectionPhaseHandler() {
         Object.keys(_connectionPhase).forEach(function(id) {
             var conn = _connectionPhase[id];
