@@ -1,52 +1,54 @@
 {
-    "name": "redmudserver",
-    "version": "0.0.1",
-    "description": "A server for RedMUD.",
-    "main": "server.js",
-    "scripts": {
-        "start": "node server.js",
-        "test": "./node_modules/.bin/mocha --trace-warnings --timeout 10000 --reporter spec",
-        "testc": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha",
-        "jsdoc": "./node_modules/.bin/jsdoc ./controllers ./models ./routes ./constants.js --readme ./README.md -d docs",
-        "wiki": "./node_modules/.bin/jsdoc2md ./controllers/*.js ./models/*.js ./routes/*.js ./constants.js > api.md"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/jyurkiw/RedMUDServer.git"
-    },
-    "keywords": [
-        "game",
-        "server",
-        "mud",
-        "redMUD"
-    ],
-    "author": "Jeffrey Yurkiw",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/jyurkiw/RedMUDServer/issues"
-    },
-    "homepage": "https://github.com/jyurkiw/RedMUDServer#readme",
-    "dependencies": {
-        "bluebird": "^3.4.6",
-        "body-parser": "^1.15.2",
-        "express": "^4.14.0",
-        "express-winston": "^2.0.0",
-        "gameloop": "^1.1.3",
-        "js-sha256": "^0.3.2",
-        "redmudlib": "git+https://github.com/jyurkiw/RedMUDLib.git",
-        "socket.io": "^1.6.0",
-        "winston": "^2.3.0"
-    },
-    "devDependencies": {
-        "chai": "^3.5.0",
-        "chai-http": "^3.0.0",
-        "fs": "0.0.1-security",
-        "istanbul": "^0.4.5",
-        "jsdoc": "^3.4.3",
-        "jsdoc-to-markdown": "^2.0.1",
-        "jshint": "^2.9.4",
-        "mocha": "^3.1.2",
-        "sinon": "^1.17.6",
-        "winston": "^2.3.0"
-    }
+  "name": "redmudserver",
+  "version": "0.0.1",
+  "description": "A server for RedMUD.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "./node_modules/.bin/mocha --trace-warnings --timeout 10000 --reporter spec",
+    "testc": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha",
+    "jsdoc": "./node_modules/.bin/jsdoc ./controllers ./models ./routes ./constants.js --readme ./README.md -d docs",
+    "wiki": "./node_modules/.bin/jsdoc2md ./controllers/*.js ./models/*.js ./routes/*.js ./constants.js > api.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jyurkiw/RedMUDServer.git"
+  },
+  "keywords": [
+    "game",
+    "server",
+    "mud",
+    "redMUD"
+  ],
+  "author": "Jeffrey Yurkiw",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jyurkiw/RedMUDServer/issues"
+  },
+  "homepage": "https://github.com/jyurkiw/RedMUDServer#readme",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "express-winston": "^2.0.0",
+    "http": "0.0.0",
+    "js-sha256": "^0.3.2",
+    "node-gameloop": "^0.1.0",
+    "redmudlib": "git+https://github.com/jyurkiw/RedMUDLib.git",
+    "socket.io": "^1.6.0",
+    "winston": "^2.3.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "fs": "0.0.1-security",
+    "istanbul": "^0.4.5",
+    "jsdoc": "^3.4.3",
+    "jsdoc-to-markdown": "^2.0.1",
+    "jshint": "^2.9.4",
+    "mocha": "^3.1.2",
+    "sinon": "^1.17.6",
+    "socket.io-client": "^1.6.0",
+    "winston": "^2.3.0"
+  }
 }

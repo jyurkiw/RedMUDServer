@@ -1,11 +1,14 @@
-var express = require('express');
-var app = express();
-var redis = require('redis');
-var lib = require('redmudlib')(redis.createClient());
+var app = require('express')();
+var server = require('http').Server(app);
 var bodyParser = require('body-parser');
+//var io = require('socket.io')(server);
 
-var socketServer = require('http').createServer().listen(8081, function() { console.log('listening on port 8081.'); });
-var io = require('socket.io').listen(socketServer);
+var redMUDServer = require('./game/red-mud-server')(server);
+redMUDServer.initMUD();
+redMUDServer.start();
+
+//var socketServer = require('http').createServer().listen(8081, function() { console.log('listening on port 8081.'); });
+//var io = require('socket.io').listen(socketServer);
 
 var port = 8080;
 var apiPreface = '/api';
@@ -26,15 +29,8 @@ app.use(function(req, res, next) {
 });
 
 app.use(apiPreface, require('./routes/login'));
-//app.use(apiPreface, require('./routes/area-route'));
-//app.use(apiPreface, require('./routes/areas-route'));
-//app.use(apiPreface, require('./routes/room-route'));
 
-io.sockets.on('connection', function(socket) {
-    console.log(socket);
-});
-
-app.listen(port);
+server.listen(port);
 console.log('server running...');
 
 module.exports = app; // for testing

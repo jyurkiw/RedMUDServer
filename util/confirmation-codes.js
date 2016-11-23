@@ -44,7 +44,7 @@ function ConfirmationCodes() {
      * @returns True if the code matches.
      */
     function checkCode(username, code) {
-        if (_userIOCodes[username].code == code) {
+        if (_userIOCodes[username] !== undefined && _userIOCodes[username].code == code) {
             var goodCode = Date.now() <= _userIOCodes[username].expiery;
             delete _userIOCodes[username];
 
