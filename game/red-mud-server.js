@@ -27,6 +27,7 @@ function RedMUDServer(httpServer) {
      * @memberof red-mud-server
      */
     function initMUD() {
+        console.log('Loading command handlers.');
         console.log('Loading classes.');
         console.log('Loading spells and effects.');
         console.log('MUD Initialization complete.');
@@ -115,6 +116,8 @@ function RedMUDServer(httpServer) {
 
     /**
      * Stop the game loop.
+     * Notify all player clients that the server is stopped.
+     * Disconnect and un-sub all socket connections.
      * 
      * @memberof red-mud-server
      */
@@ -122,6 +125,14 @@ function RedMUDServer(httpServer) {
         if (loopid !== null) {
             gameloop.clearGameLoop(loopid);
             console.log('MUD stopped.');
+
+            _commandPhase.forEach(function(username) {
+                _gamePhase[username].socket.emit('server', "The server is shut down.");
+                _gamePhase[username].socket.disconnect('chat');
+                _gamePhase[username].socket.disconnect('queued');
+                _gamePhase[username].socket.disconnect('instant');
+                _gamePhase[username].socket.disconnect('server');
+            });
         }
     }
 
@@ -144,7 +155,9 @@ function RedMUDServer(httpServer) {
     return {
         initMUD: initMUD,
         start: start,
-        stop: stop
+        stop: stop,
+        unverifiedConnectionCount: function() { return Object.keys(_connectionPhase).length; },
+        playerCount: function() { return _commandPhase.length; }
     };
 }
 
