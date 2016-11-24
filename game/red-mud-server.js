@@ -77,7 +77,7 @@ function RedMUDServer(httpServer) {
                 socket.emit(constants.sock.ver, true);
                 _gamePhase[socket.id] = {
                     username: username,
-                    socket: _connectionPhase[socket.id].socket,
+                    socket: socket,
                     commandQueue: [],
                     character: {}
                 };
