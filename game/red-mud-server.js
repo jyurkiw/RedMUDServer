@@ -7,6 +7,7 @@
  * @returns An access object.
  */
 function RedMUDServer(httpServer) {
+    var constants = require('../util/constants');
     var io = require('socket.io')(httpServer);
     var ccodes = require('../util/confirmation-codes');
     var conf = require('../config/conf');
@@ -19,7 +20,7 @@ function RedMUDServer(httpServer) {
     var _gamePhase = {};
     var _commandPhase = [];
 
-    var command = require('./command')(_gamePhase, _commandPhase);
+    var commander = require('./commander')(_gamePhase, _commandPhase);
 
     /**
      * Initialize the MUD.
@@ -73,7 +74,7 @@ function RedMUDServer(httpServer) {
         // Don't bother checking for expiery here. It can be handled inside the game loop.
         if (ccodes.checkCode(username, code)) {
             if (_gamePhase[socket.id] === undefined || socket.disconnected) {
-                socket.emit('verify', true);
+                socket.emit(constants.sock.ver, true);
                 _gamePhase[socket.id] = {
                     username: username,
                     socket: _connectionPhase[socket.id].socket,
@@ -84,12 +85,12 @@ function RedMUDServer(httpServer) {
                 _connectionPhase[socket.id].verified = true;
                 console.log(username + ' is verified.');
 
-                command.register(socket, username);
+                commander.register(socket, username);
             } else {
                 console.log(username + ' is already connected');
             }
         } else {
-            socket.emit('verify', false);
+            socket.emit(constants.sock.ver, false);
         }
     }
 
@@ -117,7 +118,7 @@ function RedMUDServer(httpServer) {
             var conn = _connectionPhase[id];
             if (Date.now() > conn.expiery && !conn.verified) {
                 conn.socket.disconnect(0);
-                conn.socket.removeListener('verify', verifyConnection);
+                conn.socket.removeListener(constants.sock.ver, verifyConnection);
             }
         });
 
@@ -160,7 +161,7 @@ function RedMUDServer(httpServer) {
             verified: false
         };
 
-        socket.on('verify', verifyConnection);
+        socket.on(constants.sock.ver, verifyConnection);
         socket.on('disconnect', function() {
             console.log(socket.id + ' disconnected');
             delete _gamePhase[socket.id];
