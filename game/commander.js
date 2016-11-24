@@ -15,9 +15,14 @@
  * 
  * @namespace command
  */
-function Commander(_gamePhase, _commandPhase) {
+function Commander(_gamePhase, _commandPhase, noLoad) {
+    // Default noLoad to false if not passed
+    if (noLoad === null || noLoad === undefined) {
+        noLoad = false;
+    }
+
     var constants = require('../util/constants');
-    var interpreter = require('./interpreter');
+    var interpreter = require('./interpreter')();
     var fs = require('fs');
     var linq = require('linq');
 
@@ -66,20 +71,22 @@ function Commander(_gamePhase, _commandPhase) {
         }
     }
 
-    // Build the commandObj
-    linq.from(fs.readdirSync('./game/command-modules'))
-        .where(function(name) { return name.substr(-3) === '.js'; })
-        .select(function(filename) { return require('./command-modules/' + filename); })
-        .toArray()
-        .forEach(function(commandWrapper) {
-            Object.keys(commandWrapper).forEach(function(commandKey) {
-                if (commandObj[commandKey] === undefined) {
-                    commandObj[commandKey] = commandWrapper[commandKey];
-                } else {
-                    console.log('shit/dupe command detected for ' + commandKey);
-                }
+    if (!noLoad) {
+        // Build the commandObj
+        linq.from(fs.readdirSync('./game/command-modules'))
+            .where(function(name) { return name.substr(-3) === '.js'; })
+            .select(function(filename) { return require('./command-modules/' + filename); })
+            .toArray()
+            .forEach(function(commandWrapper) {
+                Object.keys(commandWrapper).forEach(function(commandKey) {
+                    if (commandObj[commandKey] === undefined) {
+                        commandObj[commandKey] = commandWrapper[commandKey];
+                    } else {
+                        console.log('shit/dupe command detected for ' + commandKey);
+                    }
+                });
             });
-        });
+    }
 
     return {
         register: register

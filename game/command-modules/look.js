@@ -30,7 +30,7 @@ function Look() {
                 } else {
                     console.log('additional args found');
                     if (argument.indexOf(' ') === -1) {
-                        var interpreter = require('../interpreter');
+                        var interpreter = require('../interpreter')();
 
                         var arg = interpreter.interpretRawCommand(argument);
                         if (arg !== null) {
