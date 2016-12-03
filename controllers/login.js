@@ -24,7 +24,7 @@ function LoginController() {
     function loginPOST(request, response) {
         var loginData = request.body;
 
-        return lib.admin.user.async.checkPassword(loginData.username, loginData.pwhash)
+        return lib.user.async.checkPassword(loginData.username, loginData.pwhash)
             .then(function(success) {
                 var data = {
                     success: success

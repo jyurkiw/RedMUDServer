@@ -9,7 +9,8 @@ function Constants() {
             svr: 'server'
         },
         errors: {
-            dupCmdErr: 'Duplicate command key detected.'
+            dupCmdErr: 'Duplicate command key detected.',
+            noExitErr: 'There is no exit in that direction!!!'
         }
     };
 }

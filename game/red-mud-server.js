@@ -9,6 +9,7 @@
 function RedMUDServer(httpServer) {
     var constants = require('../util/constants');
     var io = require('socket.io')(httpServer);
+    var lib = require('redmudlib')();
     var ccodes = require('../util/confirmation-codes');
     var conf = require('../config/conf');
     var linq = require('linq');
@@ -79,11 +80,21 @@ function RedMUDServer(httpServer) {
                     username: username,
                     socket: socket,
                     commandQueue: [],
-                    character: {}
+                    character: null
                 };
                 _commandPhase.push(socket.id);
                 _connectionPhase[socket.id].verified = true;
                 console.log(username + ' is verified.');
+
+                lib.character.async.getCharactersForUser(username)
+                    .then(function(characters) {
+                        if (characters.length > 0) {
+                            lib.character.async.getCharacter(characters[0])
+                                .then(function(character) {
+                                    _gamePhase[socket.id].character = character;
+                                });
+                        }
+                    });
 
                 commander.register(socket, username);
             } else {
@@ -102,6 +113,9 @@ function RedMUDServer(httpServer) {
     function start() {
         loopid = gameloop.setGameLoop(function(delta) {
             console.log('in the mud loop');
+
+            commander.executeQueuedCommands();
+
             connectionPhaseHandler();
         }, conf.turnDuration);
     }

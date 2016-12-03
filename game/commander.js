@@ -57,18 +57,37 @@ function Commander(_gamePhase, _commandPhase, noLoad) {
 
         // if parsedCmd is null, the raw command was not a valid command.
         // If parsedCmd is not present in the commandObj, it's not a valid command.
-        if (parsedCmd !== null && commandObj[parsedCmd] !== undefined) {
+        if (parsedCmd !== null && commandObj[parsedCmd.command] !== undefined) {
             console.log('interpreted ' + rawCommand + ' as ' + parsedCmd.command);
             if (commandObj[parsedCmd.command].instant) {
                 // Command is instant. Execute immediately.
-                commandObj[parsedCmd.command](null, parsedCmd.command, parsedCmd.argument, socket);
+                commandObj[parsedCmd.command](playerPhase.character, parsedCmd.command, parsedCmd.argument, socket);
             } else {
                 // Command is turn-bound. Place in player's command queue.
-                playerPhase.commandQueue.push(commandObj);
+                playerPhase.commandQueue.push(parsedCmd);
             }
         } else {
             console.log('command ' + rawCommand + ' was shit');
         }
+    }
+
+    /**
+     * Execute one queued command per player.
+     * 
+     * @memberof command
+     */
+    function executeQueuedCommands() {
+        console.log('executing queued commands');
+
+        _commandPhase.forEach(function(playerKey) {
+            var playerPhase = _gamePhase[playerKey];
+            var parsedCmd = playerPhase.commandQueue.shift();
+
+            if (parsedCmd !== undefined) {
+                var commandFunction = commandObj[parsedCmd.command];
+                commandFunction(playerPhase.character, parsedCmd.command, parsedCmd.argument, playerPhase.socket)
+            }
+        });
     }
 
     if (!noLoad) {
@@ -89,7 +108,8 @@ function Commander(_gamePhase, _commandPhase, noLoad) {
     }
 
     return {
-        register: register
+        register: register,
+        executeQueuedCommands: executeQueuedCommands
     };
 }
 

@@ -21,8 +21,9 @@ function Look() {
      * @param {any} socket The communication socket.
      */
     function look(character, command, argument, socket) {
+        console.log(character);
         // handle base look
-        lib.room.async.getRoom('KDV', 1)
+        lib.room.async.getRoomByCode(character.room)
             .then(function(room) {
                 if (argument.length === 0) {
                     console.log('emitting kdv:1');
