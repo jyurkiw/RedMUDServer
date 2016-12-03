@@ -89,14 +89,15 @@ function RedMUDServer(httpServer) {
                 lib.character.async.getCharactersForUser(username)
                     .then(function(characters) {
                         if (characters.length > 0) {
-                            lib.character.async.getCharacter(characters[0])
+                            return lib.character.async.getCharacter(characters[0])
                                 .then(function(character) {
                                     _gamePhase[socket.id].character = character;
                                 });
                         }
+                    })
+                    .then(function() {
+                        commander.register(socket, username);
                     });
-
-                commander.register(socket, username);
             } else {
                 console.log(username + ' is already connected');
             }
