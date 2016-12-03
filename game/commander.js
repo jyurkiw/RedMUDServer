@@ -36,7 +36,11 @@ function Commander(_gamePhase, _commandPhase, noLoad) {
      * @param {any} username The verified user.
      */
     function register(socket, username) {
-        console.log('registering ' + username + ' for command events.');
+        console.log('registering ' + username + ' for command events and displaying current room.');
+
+        playerPhase = _gamePhase[socket.id];
+        commandObj.look(playerPhase.character, "look", "", socket);
+
         socket.on(constants.sock.cmd, parseCommand);
     }
 
