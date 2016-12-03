@@ -1,0 +1,28 @@
+What makes a character?
+
+A character is a collection of data, owned by a user.
+
+USER:<username> - {hash}:
+{
+    username:   {string},
+    pwhash:     {string},
+}
+
+A user's character will have their id stored in a set keyed to the user's usrname.
+This is to enable modifications that allow a single player to play multiple characters.
+The intended game design is for one account to have one character at a time, but this is
+being made intentionally flexable.
+
+USER:<username>:CHARACTERS - {set}:
+[
+    <idstring>
+]
+
+CHARACTER:<idstring> - {hash}:
+{
+    name: {string},
+    class: {string},
+    race: {string},
+    level: {int},
+    location: {roomcode}
+}

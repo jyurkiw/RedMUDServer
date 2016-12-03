@@ -7,7 +7,9 @@
  * @returns An access object.
  */
 function RedMUDServer(httpServer) {
+    var constants = require('../util/constants');
     var io = require('socket.io')(httpServer);
+    var lib = require('redmudlib')();
     var ccodes = require('../util/confirmation-codes');
     var conf = require('../config/conf');
     var linq = require('linq');
@@ -19,6 +21,8 @@ function RedMUDServer(httpServer) {
     var _gamePhase = {};
     var _commandPhase = [];
 
+    var commander = require('./commander')(_gamePhase, _commandPhase);
+
     /**
      * Initialize the MUD.
      * Load all class modules.
@@ -27,6 +31,7 @@ function RedMUDServer(httpServer) {
      * @memberof red-mud-server
      */
     function initMUD() {
+        console.log('Loading command handlers.');
         console.log('Loading classes.');
         console.log('Loading spells and effects.');
         console.log('MUD Initialization complete.');
@@ -69,16 +74,34 @@ function RedMUDServer(httpServer) {
 
         // Don't bother checking for expiery here. It can be handled inside the game loop.
         if (ccodes.checkCode(username, code)) {
-            socket.emit('verify', true);
-            _gamePhase[username] = {
-                socket: _connectionPhase[socket.id].socket,
-                commandQueue: [],
-                character: {}
-            };
-            _commandPhase.push(username);
-            _connectionPhase[socket.id].verified = true;
+            if (_gamePhase[socket.id] === undefined || socket.disconnected) {
+                socket.emit(constants.sock.ver, true);
+                _gamePhase[socket.id] = {
+                    username: username,
+                    socket: socket,
+                    commandQueue: [],
+                    character: null
+                };
+                _commandPhase.push(socket.id);
+                _connectionPhase[socket.id].verified = true;
+                console.log(username + ' is verified.');
+
+                lib.character.async.getCharactersForUser(username)
+                    .then(function(characters) {
+                        if (characters.length > 0) {
+                            lib.character.async.getCharacter(characters[0])
+                                .then(function(character) {
+                                    _gamePhase[socket.id].character = character;
+                                });
+                        }
+                    });
+
+                commander.register(socket, username);
+            } else {
+                console.log(username + ' is already connected');
+            }
         } else {
-            socket.emit('verify', false);
+            socket.emit(constants.sock.ver, false);
         }
     }
 
@@ -90,6 +113,9 @@ function RedMUDServer(httpServer) {
     function start() {
         loopid = gameloop.setGameLoop(function(delta) {
             console.log('in the mud loop');
+
+            commander.executeQueuedCommands();
+
             connectionPhaseHandler();
         }, conf.turnDuration);
     }
@@ -106,7 +132,7 @@ function RedMUDServer(httpServer) {
             var conn = _connectionPhase[id];
             if (Date.now() > conn.expiery && !conn.verified) {
                 conn.socket.disconnect(0);
-                conn.socket.removeListener('verify', verifyConnection);
+                conn.socket.removeListener(constants.sock.ver, verifyConnection);
             }
         });
 
@@ -115,6 +141,8 @@ function RedMUDServer(httpServer) {
 
     /**
      * Stop the game loop.
+     * Notify all player clients that the server is stopped.
+     * Disconnect and un-sub all socket connections.
      * 
      * @memberof red-mud-server
      */
@@ -122,6 +150,15 @@ function RedMUDServer(httpServer) {
         if (loopid !== null) {
             gameloop.clearGameLoop(loopid);
             console.log('MUD stopped.');
+
+            _commandPhase.forEach(function(id) {
+                _gamePhase[id].socket.emit('server', "The server is shut down.");
+                _gamePhase[id].socket.disconnect('chat');
+                _gamePhase[id].socket.disconnect('queued');
+                _gamePhase[id].socket.disconnect('instant');
+                _gamePhase[id].socket.disconnect('server');
+                _gamePhase[id].socket.disconnect('command');
+            });
         }
     }
 
@@ -138,13 +175,20 @@ function RedMUDServer(httpServer) {
             verified: false
         };
 
-        socket.on('verify', verifyConnection);
+        socket.on(constants.sock.ver, verifyConnection);
+        socket.on('disconnect', function() {
+            console.log(socket.id + ' disconnected');
+            delete _gamePhase[socket.id];
+            _commandPhase.splice(_commandPhase.indexOf(socket.id), 1);
+        });
     });
 
     return {
         initMUD: initMUD,
         start: start,
-        stop: stop
+        stop: stop,
+        unverifiedConnectionCount: function() { return Object.keys(_connectionPhase).length; },
+        playerCount: function() { return _commandPhase.length; }
     };
 }
 

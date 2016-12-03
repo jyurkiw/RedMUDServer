@@ -1,0 +1,47 @@
+Command Modules are factory functions that return an object with the following signature:
+
+{
+    commandFunction: { 
+        [Function: commandExecutor], 
+        baseCall: {boolean}, 
+        instant: {boolean}
+    }
+}
+
+Every command function must be accompanied by the baseCall, args, and instant properties so that
+the server knows how to call it.
+
+commandExecutor:
+    The primary function call for the command. If the command is "look", then the commandExecutor
+is the function call that causes the player to look at something.
+
+baseCall:
+    This flag tells the server if the command can be executed without arguments, in some kind
+of base state. Example: "look" as compared to "look west" or "look longsword".
+
+instant:
+    The instant flag tells the server if the command can be executed immediately, or if
+it has to be queued because it's execution is turn-bound. Example: "north" is turn-bound and
+will not be executed until the next turn. "look orc" is not, and can be executed immediately.
+
+Command Executors:
+
+    Function Signature:
+        function(character, command, argument, socket) { }
+
+    character:
+        The character object. Most commands will need knowledge of the character to execute.
+    
+    command:
+        The full command name parsed by the interpreter. Example: If the player typed in "n",
+    then the command argument should be "north".
+
+    argument:
+        The remaining argument string. Example: If the player typed in "l n", then the command
+    would be "look", and the argument would be "n". The n could then be plugged back into the
+    interpreter to get "north". If argument was "lon", then the server would have to check
+    the character's inventory and equipped weapons to get "longsword".
+
+    socket:
+        The socket.io socket object registered to the user and verified by the server. Used
+    to communicate with the player. 
