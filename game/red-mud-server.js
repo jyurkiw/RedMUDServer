@@ -113,8 +113,6 @@ function RedMUDServer(httpServer) {
      */
     function start() {
         loopid = gameloop.setGameLoop(function(delta) {
-            console.log('in the mud loop');
-
             commander.executeQueuedCommands();
 
             connectionPhaseHandler();
