@@ -21,12 +21,10 @@ function Look() {
      * @param {any} socket The communication socket.
      */
     function look(character, command, argument, socket) {
-        console.log(character);
         // handle base look
         lib.room.async.getRoomByCode(character.room)
             .then(function(room) {
                 if (argument.length === 0) {
-                    console.log('emitting kdv:1');
                     socket.emit(constants.sock.ins, room);
                 } else {
                     console.log('additional args found');
@@ -35,7 +33,14 @@ function Look() {
 
                         var arg = interpreter.interpretRawCommand(argument);
                         if (arg !== null) {
-                            console.log('looking ' + arg.command);
+                            if (room.exits[arg.command] !== undefined) {
+                                lib.room.async.getRoomByCode(room.exits[arg.command])
+                                    .then(function(adjacentRoom) {
+                                        socket.emit(constants.sock.ins, adjacentRoom);
+                                    });
+                            } else {
+                                socket.emit(constants.sock.ins, constants.errors.noExitErr);
+                            }
                         }
                     }
                 }
