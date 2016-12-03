@@ -1,3 +1,5 @@
+var s__commandObj = null;
+
 /**
  * Handle interpretation of commands from the command line.
  * 
@@ -5,11 +7,14 @@
  * @returns An interpreter object.
  */
 function Interpreter(noLoad) {
-    // Default noLoad to false if not passed
-    if (noLoad === null || noLoad === undefined) {
-        noLoad = false;
+    if (s__commandObj === null && (noLoad === undefined || !noLoad)) {
+        s__commandObj = BuildInterpreter();
     }
 
+    return s__commandObj;
+}
+
+function BuildInterpreter() {
     var fs = require('fs');
     var linq = require('linq');
     var constants = require('../util/constants');
@@ -42,23 +47,22 @@ function Interpreter(noLoad) {
     }
     commandObj.interpretRawCommand = interpretRawCommand;
 
-    if (!noLoad) {
-        // grab all files in the interpreter-modules directory
-        linq.from(fs.readdirSync('./game/interpreter-modules'))
-            .where(function(name) { return name.substr(-3) === '.js'; })
-            .select(function(filename) { return require('./interpreter-modules/' + filename); })
-            .orderBy(function(mod) { return mod.priority; })
-            .toArray()
-            .forEach(function(module) {
-                Object.keys(module.commands).forEach(function(command) {
-                    if (commandObj[command] === undefined) {
-                        commandObj[command] = module.commands[command];
-                    } else {
-                        throw constants.errors.dupCmdErr + '(' + command + ')';
-                    }
-                });
+    console.log('reading files');
+    // grab all files in the interpreter-modules directory
+    linq.from(fs.readdirSync('./game/interpreter-modules'))
+        .where(function(name) { return name.substr(-3) === '.js'; })
+        .select(function(filename) { return require('./interpreter-modules/' + filename); })
+        .orderBy(function(mod) { return mod.priority; })
+        .toArray()
+        .forEach(function(module) {
+            Object.keys(module.commands).forEach(function(command) {
+                if (commandObj[command] === undefined) {
+                    commandObj[command] = module.commands[command];
+                } else {
+                    throw constants.errors.dupCmdErr + '(' + command + ')';
+                }
             });
-    }
+        });
 
     return commandObj;
 }
